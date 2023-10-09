@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Dtos;
 using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
@@ -23,57 +24,61 @@ public class CitaController : BaseController
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IEnumerable<Cita>>> Get()
+    public async Task<ActionResult<IEnumerable<CitaDto>>> Get()
     {
-        var cita = await _unitOfWork.Citas.GetAllAsync();
-        return Ok(cita);
+        var citas = await _unitOfWork.Citas.GetAllAsync();
+        return _mapper.Map<List<CitaDto>>(citas);
     }
 
     [HttpGet("{Id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Cita>> Get(int Id)
+    public async Task<ActionResult<CitaDto>> Get(int Id)
     {
         var cita = await _unitOfWork.Citas.GetByIdAsync(Id);
         if (cita == null)
         {
             return NotFound();
         }
-        return cita;
+        return _mapper.Map<CitaDto>(cita);
     }
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Cita>> Post(Cita cita)
+    public async Task<ActionResult<CitaDto>> Post(CitaDto citaDto)
     {
-        this._unitOfWork.Citas.Add(cita);
+        var cita = _mapper.Map<Cita>(citaDto);
+        _unitOfWork.Citas.Add(cita);
         await _unitOfWork.SaveAsync();
         if (cita == null)
         {
             return BadRequest();
         }
-        return CreatedAtAction(nameof(Post), new { id = cita.Id }, cita);
+        citaDto.Id = cita.Id;
+        return CreatedAtAction(nameof(Post), new { id = citaDto.Id }, citaDto);
     }
 
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Cita>> Put(int id, [FromBody] Cita cita)
+    public async Task<ActionResult<CitaDto>> Put(int id, [FromBody] CitaDto citaDto)
     {
-        if (cita.Id == 0)
+        if (citaDto.Id == 0)
         {
-            cita.Id = id;
+            citaDto.Id = id;
         }
-        if (cita.Id != id)
+        if (citaDto.Id != id)
         {
             return NotFound();
         }
+        var cita = _mapper.Map<Cita>(citaDto);
+        citaDto.Id = cita.Id;
         _unitOfWork.Citas.Update(cita);
         await _unitOfWork.SaveAsync();
-        return cita;
+        return citaDto;
     }
 
     [HttpDelete("{id}")]

@@ -2,90 +2,97 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Dtos;
+using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers
+namespace API.Controllers;
+
+public class ClienteDireccionController : BaseController
 {
-    public class ClienteDireccionController : BaseController
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+
+    public ClienteDireccionController(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+    }
 
-        public ClienteDireccionController(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<ClienteDireccionDto>>> Get()
+    {
+        var clienteDireccion = await _unitOfWork.ClienteDirecciones.GetAllAsync();
+        return _mapper.Map<List<ClienteDireccionDto>>(clienteDireccion);
+    }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<ClienteDireccion>>> Get()
+    [HttpGet("{Id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ClienteDireccionDto>> Get(int Id)
+    {
+        var clienteDireccion = await _unitOfWork.ClienteDirecciones.GetByIdAsync(Id);
+        if (clienteDireccion == null)
         {
-            var ClienteDireccion = await _unitOfWork.ClienteDirecciones.GetAllAsync();
-            return Ok(ClienteDireccion);
+            return NotFound();
         }
+        return _mapper.Map<ClienteDireccionDto>(clienteDireccion);
+    }
 
-        [HttpGet("{Id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ClienteDireccion>> Get(int Id)
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ClienteDireccionDto>> Post(ClienteDireccionDto clienteDireccionDto)
+    {
+        var clienteDireccion = _mapper.Map<ClienteDireccion>(clienteDireccionDto);
+        _unitOfWork.ClienteDirecciones.Add(clienteDireccion);
+        await _unitOfWork.SaveAsync();
+        if (clienteDireccion == null)
         {
-            var clienteDireccion = await _unitOfWork.ClienteDirecciones.GetByIdAsync(Id);
-            if (clienteDireccion == null)
-            {
-                return NotFound();
-            }
-            return clienteDireccion;
+            return BadRequest();
         }
+        clienteDireccionDto.Id = clienteDireccion.Id;
+        return CreatedAtAction(nameof(Post), new { id = clienteDireccionDto.Id }, clienteDireccionDto);
+    }
 
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ClienteDireccion>> Post(ClienteDireccion clienteDireccion)
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ClienteDireccionDto>> Put(int id, [FromBody] ClienteDireccionDto clienteDireccionDto)
+    {
+        if (clienteDireccionDto.Id == 0)
         {
-            _unitOfWork.ClienteDirecciones.Add(clienteDireccion);
-            await _unitOfWork.SaveAsync();
-            if (clienteDireccion == null)
-            {
-                return BadRequest();
-            }
-            return CreatedAtAction(nameof(Post), new { id = clienteDireccion.Id }, clienteDireccion);
+            clienteDireccionDto.Id = id;
         }
+        if (clienteDireccionDto.Id != id)
+        {
+            return NotFound();
+        }
+        var clienteDireccion = _mapper.Map<ClienteDireccion>(clienteDireccionDto);
+        clienteDireccionDto.Id = clienteDireccion.Id;
+        _unitOfWork.ClienteDirecciones.Update(clienteDireccion);
+        await _unitOfWork.SaveAsync();
+        return clienteDireccionDto;
+    }
 
-        [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ClienteDireccion>> Put(int id, [FromBody] ClienteDireccion clienteDireccion)
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var clienteDireccion = await _unitOfWork.ClienteDirecciones.GetByIdAsync(id);
+        if (clienteDireccion == null)
         {
-            if (clienteDireccion.Id == 0)
-            {
-                clienteDireccion.Id = id;
-            }
-            if (clienteDireccion.Id != id)
-            {
-                return NotFound();
-            }
-            _unitOfWork.ClienteDirecciones.Update(clienteDireccion);
-            await _unitOfWork.SaveAsync();
-            return clienteDireccion;
+            return NotFound();
         }
-
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var clienteDireccion = await _unitOfWork.ClienteDirecciones.GetByIdAsync(id);
-            if (clienteDireccion == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.ClienteDirecciones.Remove(clienteDireccion);
-            await _unitOfWork.SaveAsync();
-            return NoContent();
-        }
+        _unitOfWork.ClienteDirecciones.Remove(clienteDireccion);
+        await _unitOfWork.SaveAsync();
+        return NoContent();
     }
 }

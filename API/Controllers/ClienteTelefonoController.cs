@@ -2,90 +2,97 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Dtos;
+using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers
+namespace API.Controllers;
+
+public class ClienteTelefonoController : BaseController
 {
-    public class ClienteTelefonoController : BaseController
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+
+    public ClienteTelefonoController(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+    }
 
-        public ClienteTelefonoController(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<ClienteTelefonoDto>>> Get()
+    {
+        var clienteTelefonos = await _unitOfWork.ClienteTelefonos.GetAllAsync();
+        return _mapper.Map<List<ClienteTelefonoDto>>(clienteTelefonos);
+    }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<ClienteTelefono>>> Get()
+    [HttpGet("{Id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ClienteTelefonoDto>> Get(int Id)
+    {
+        var clienteTelefono = await _unitOfWork.ClienteTelefonos.GetByIdAsync(Id);
+        if (clienteTelefono == null)
         {
-            var ClienteTelefono = await _unitOfWork.ClienteTelefonos.GetAllAsync();
-            return Ok(ClienteTelefono);
+            return NotFound();
         }
+        return _mapper.Map<ClienteTelefonoDto>(clienteTelefono);
+    }
 
-        [HttpGet("{Id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ClienteTelefono>> Get(int Id)
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ClienteTelefonoDto>> Post(ClienteTelefonoDto clienteTelefonoDto)
+    {
+        var clienteTelefono = _mapper.Map<ClienteTelefono>(clienteTelefonoDto);
+        _unitOfWork.ClienteTelefonos.Add(clienteTelefono);
+        await _unitOfWork.SaveAsync();
+        if (clienteTelefono == null)
         {
-            var clienteTelefono = await _unitOfWork.ClienteTelefonos.GetByIdAsync(Id);
-            if (clienteTelefono == null)
-            {
-                return NotFound();
-            }
-            return clienteTelefono;
+            return BadRequest();
         }
+        clienteTelefonoDto.Id = clienteTelefono.Id;
+        return CreatedAtAction(nameof(Post), new { id = clienteTelefonoDto.Id }, clienteTelefonoDto);
+    }
 
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ClienteTelefono>> Post(ClienteTelefono clienteTelefono)
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ClienteTelefonoDto>> Put(int id, [FromBody] ClienteTelefonoDto clienteTelefonoDto)
+    {
+        if (clienteTelefonoDto.Id == 0)
         {
-            _unitOfWork.ClienteTelefonos.Add(clienteTelefono);
-            await _unitOfWork.SaveAsync();
-            if (clienteTelefono == null)
-            {
-                return BadRequest();
-            }
-            return CreatedAtAction(nameof(Post), new { id = clienteTelefono.Id }, clienteTelefono);
+            clienteTelefonoDto.Id = id;
         }
+        if (clienteTelefonoDto.Id != id)
+        {
+            return NotFound();
+        }
+        var clienteTelefono = _mapper.Map<ClienteTelefono>(clienteTelefonoDto);
+        clienteTelefonoDto.Id = clienteTelefono.Id;
+        _unitOfWork.ClienteTelefonos.Update(clienteTelefono);
+        await _unitOfWork.SaveAsync();
+        return clienteTelefonoDto;
+    }
 
-        [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ClienteTelefono>> Put(int id, [FromBody] ClienteTelefono clienteTelefono)
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var clienteTelefono = await _unitOfWork.ClienteTelefonos.GetByIdAsync(id);
+        if (clienteTelefono == null)
         {
-            if (clienteTelefono.Id == 0)
-            {
-                clienteTelefono.Id = id;
-            }
-            if (clienteTelefono.Id != id)
-            {
-                return NotFound();
-            }
-            _unitOfWork.ClienteTelefonos.Update(clienteTelefono);
-            await _unitOfWork.SaveAsync();
-            return clienteTelefono;
+            return NotFound();
         }
-
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var clienteTelefono = await _unitOfWork.ClienteTelefonos.GetByIdAsync(id);
-            if (clienteTelefono == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.ClienteTelefonos.Remove(clienteTelefono);
-            await _unitOfWork.SaveAsync();
-            return NoContent();
-        }
+        _unitOfWork.ClienteTelefonos.Remove(clienteTelefono);
+        await _unitOfWork.SaveAsync();
+        return NoContent();
     }
 }

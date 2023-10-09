@@ -2,90 +2,97 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Dtos;
+using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers
+namespace API.Controllers;
+
+public class DepartamentoController : BaseController
 {
-    public class DepartamentoController : BaseController
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+
+    public DepartamentoController(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+    }
 
-        public DepartamentoController(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<DepartamentoDto>>> Get()
+    {
+        var departamentos = await _unitOfWork.Departamentos.GetAllAsync();
+        return _mapper.Map<List<DepartamentoDto>>(departamentos);
+    }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<Departamento>>> Get()
+    [HttpGet("{Id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<DepartamentoDto>> Get(int Id)
+    {
+        var departamento = await _unitOfWork.Departamentos.GetByIdAsync(Id);
+        if (departamento == null)
         {
-            var departamento = await _unitOfWork.Departamentos.GetAllAsync();
-            return Ok(departamento);
+            return NotFound();
         }
+        return _mapper.Map<DepartamentoDto>(departamento);
+    }
 
-        [HttpGet("{Id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Departamento>> Get(int Id)
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<DepartamentoDto>> Post(DepartamentoDto departamentoDto)
+    {
+        var departamento = _mapper.Map<Departamento>(departamentoDto);
+        _unitOfWork.Departamentos.Add(departamento);
+        await _unitOfWork.SaveAsync();
+        if (departamento == null)
         {
-            var departamento = await _unitOfWork.Departamentos.GetByIdAsync(Id);
-            if (departamento == null)
-            {
-                return NotFound();
-            }
-            return departamento;
+            return BadRequest();
         }
+        departamentoDto.Id = departamento.Id;
+        return CreatedAtAction(nameof(Post), new { id = departamentoDto.Id }, departamentoDto);
+    }
 
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Departamento>> Post(Departamento departamento)
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<DepartamentoDto>> Put(int id, [FromBody] DepartamentoDto departamentoDto)
+    {
+        if (departamentoDto.Id == 0)
         {
-            _unitOfWork.Departamentos.Add(departamento);
-            await _unitOfWork.SaveAsync();
-            if (departamento == null)
-            {
-                return BadRequest();
-            }
-            return CreatedAtAction(nameof(Post), new { id = departamento.Id }, departamento);
+            departamentoDto.Id = id;
         }
+        if (departamentoDto.Id != id)
+        {
+            return NotFound();
+        }
+        var departamento = _mapper.Map<Departamento>(departamentoDto);
+        departamentoDto.Id = departamento.Id;
+        _unitOfWork.Departamentos.Update(departamento);
+        await _unitOfWork.SaveAsync();
+        return departamentoDto;
+    }
 
-        [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Departamento>> Put(int id, [FromBody] Departamento departamento)
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var departamento = await _unitOfWork.Departamentos.GetByIdAsync(id);
+        if (departamento == null)
         {
-            if (departamento.Id == 0)
-            {
-                departamento.Id = id;
-            }
-            if (departamento.Id != id)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Departamentos.Update(departamento);
-            await _unitOfWork.SaveAsync();
-            return departamento;
+            return NotFound();
         }
-
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var departamento = await _unitOfWork.Departamentos.GetByIdAsync(id);
-            if (departamento == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Departamentos.Remove(departamento);
-            await _unitOfWork.SaveAsync();
-            return NoContent();
-        }
+        _unitOfWork.Departamentos.Remove(departamento);
+        await _unitOfWork.SaveAsync();
+        return NoContent();
     }
 }

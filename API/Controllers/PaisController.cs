@@ -47,7 +47,7 @@ public class PaisController : BaseController
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Pais>> Post(PaisDto paisDto)
+    public async Task<ActionResult<PaisDto>> Post(PaisDto paisDto)
     {
         var pais = _mapper.Map<Pais>(paisDto);
         _unitOfWork.Paises.Add(pais);
@@ -74,9 +74,9 @@ public class PaisController : BaseController
         {
             return NotFound();
         }
-        var paises = _mapper.Map<Pais>(paisDto);
-        paisDto.Id = paises.Id;
-        _unitOfWork.Paises.Update(paises);
+        var pais = _mapper.Map<Pais>(paisDto);
+        paisDto.Id = pais.Id;
+        _unitOfWork.Paises.Update(pais);
         await _unitOfWork.SaveAsync();
         return paisDto;
     }

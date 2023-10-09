@@ -2,90 +2,97 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Dtos;
+using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers
+namespace API.Controllers;
+
+public class RazaController : BaseController
 {
-    public class RazaController : BaseController
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+
+    public RazaController(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+    }
 
-        public RazaController(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<RazaDto>>> Get()
+    {
+        var raza = await _unitOfWork.Razas.GetAllAsync();
+        return _mapper.Map<List<RazaDto>>(raza);
+    }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<Raza>>> Get()
+    [HttpGet("{Id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RazaDto>> Get(int Id)
+    {
+        var raza = await _unitOfWork.Razas.GetByIdAsync(Id);
+        if (raza == null)
         {
-            var raza = await _unitOfWork.Razas.GetAllAsync();
-            return Ok(raza);
+            return NotFound();
         }
+        return _mapper.Map<RazaDto>(raza);
+    }
 
-        [HttpGet("{Id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Raza>> Get(int Id)
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<RazaDto>> Post(RazaDto razaDto)
+    {
+        var raza = _mapper.Map<Raza>(razaDto);
+        _unitOfWork.Razas.Add(raza);
+        await _unitOfWork.SaveAsync();
+        if (raza == null)
         {
-            var raza = await _unitOfWork.Razas.GetByIdAsync(Id);
-            if (raza == null)
-            {
-                return NotFound();
-            }
-            return raza;
+            return BadRequest();
         }
+        razaDto.Id = razaDto.Id;
+        return CreatedAtAction(nameof(Post), new { id = razaDto.Id }, razaDto);
+    }
 
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Raza>> Post(Raza raza)
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RazaDto>> Put(int id, [FromBody] RazaDto razaDto)
+    {
+        if (razaDto.Id == 0)
         {
-            _unitOfWork.Razas.Add(raza);
-            await _unitOfWork.SaveAsync();
-            if (raza == null)
-            {
-                return BadRequest();
-            }
-            return CreatedAtAction(nameof(Post), new { id = raza.Id }, raza);
+            razaDto.Id = id;
         }
+        if (razaDto.Id != id)
+        {
+            return NotFound();
+        }
+        var raza = _mapper.Map<Raza>(razaDto);
+        razaDto.Id = raza.Id;
+        _unitOfWork.Razas.Update(raza);
+        await _unitOfWork.SaveAsync();
+        return razaDto;
+    }
 
-        [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Raza>> Put(int id, [FromBody] Raza raza)
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var raza = await _unitOfWork.Razas.GetByIdAsync(id);
+        if (raza == null)
         {
-            if (raza.Id == 0)
-            {
-                raza.Id = id;
-            }
-            if (raza.Id != id)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Razas.Update(raza);
-            await _unitOfWork.SaveAsync();
-            return raza;
+            return NotFound();
         }
-
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var raza = await _unitOfWork.Razas.GetByIdAsync(id);
-            if (raza == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Razas.Remove(raza);
-            await _unitOfWork.SaveAsync();
-            return NoContent();
-        }
+        _unitOfWork.Razas.Remove(raza);
+        await _unitOfWork.SaveAsync();
+        return NoContent();
     }
 }

@@ -2,90 +2,97 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Dtos;
+using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers
+namespace API.Controllers;
+
+public class MascotaController : BaseController
 {
-    public class MascotaController : BaseController
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+
+    public MascotaController(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+    }
 
-        public MascotaController(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<MascotaDto>>> Get()
+    {
+        var mascota = await _unitOfWork.Mascotas.GetAllAsync();
+        return _mapper.Map<List<MascotaDto>>(mascota);
+    }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<Mascota>>> Get()
+    [HttpGet("{Id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<MascotaDto>> Get(int Id)
+    {
+        var mascota = await _unitOfWork.Mascotas.GetByIdAsync(Id);
+        if (mascota == null)
         {
-            var mascota = await _unitOfWork.Mascotas.GetAllAsync();
-            return Ok(mascota);
+            return NotFound();
         }
+        return _mapper.Map<MascotaDto>(mascota);
+    }
 
-        [HttpGet("{Id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Mascota>> Get(int Id)
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<MascotaDto>> Post(MascotaDto mascotaDto)
+    {
+        var mascota = _mapper.Map<Mascota>(mascotaDto);
+        _unitOfWork.Mascotas.Add(mascota);
+        await _unitOfWork.SaveAsync();
+        if (mascota == null)
         {
-            var mascota = await _unitOfWork.Mascotas.GetByIdAsync(Id);
-            if (mascota == null)
-            {
-                return NotFound();
-            }
-            return mascota;
+            return BadRequest();
         }
+        mascotaDto.Id = mascota.Id;
+        return CreatedAtAction(nameof(Post), new { id = mascotaDto.Id }, mascotaDto);
+    }
 
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Mascota>> Post(Mascota mascota)
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<MascotaDto>> Put(int id, [FromBody] MascotaDto mascotaDto)
+    {
+        if (mascotaDto.Id == 0)
         {
-            _unitOfWork.Mascotas.Add(mascota);
-            await _unitOfWork.SaveAsync();
-            if (mascota == null)
-            {
-                return BadRequest();
-            }
-            return CreatedAtAction(nameof(Post), new { id = mascota.Id }, mascota);
+            mascotaDto.Id = id;
         }
+        if (mascotaDto.Id != id)
+        {
+            return NotFound();
+        }
+        var mascota = _mapper.Map<Mascota>(mascotaDto);
+        mascotaDto.Id = mascota.Id;
+        _unitOfWork.Mascotas.Update(mascota);
+        await _unitOfWork.SaveAsync();
+        return mascotaDto;
+    }
 
-        [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Mascota>> Put(int id, [FromBody] Mascota mascota)
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var mascota = await _unitOfWork.Mascotas.GetByIdAsync(id);
+        if (mascota == null)
         {
-            if (mascota.Id == 0)
-            {
-                mascota.Id = id;
-            }
-            if (mascota.Id != id)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Mascotas.Update(mascota);
-            await _unitOfWork.SaveAsync();
-            return mascota;
+            return NotFound();
         }
-
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var mascota = await _unitOfWork.Mascotas.GetByIdAsync(id);
-            if (mascota == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Mascotas.Remove(mascota);
-            await _unitOfWork.SaveAsync();
-            return NoContent();
-        }
+        _unitOfWork.Mascotas.Remove(mascota);
+        await _unitOfWork.SaveAsync();
+        return NoContent();
     }
 }
