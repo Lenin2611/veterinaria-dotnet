@@ -30,7 +30,7 @@ public class PaisRepository : GenericRepository<Pais>, IPaisRepository
     public override async Task<(int totalRegistros, IEnumerable<Pais> registros)> GetAllAsync(
         int pageIndex,
         int pageSize,
-        string search
+        string search 
     )
     {
         var query = _context.Paises as IQueryable<Pais>;

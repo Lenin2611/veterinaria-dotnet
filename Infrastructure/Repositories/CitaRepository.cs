@@ -22,15 +22,15 @@ public class CitaRepository : GenericRepository<Cita>, ICitaRepository
         return await _context.Citas.ToListAsync();
     }
     public override async Task<(int totalRegistros, IEnumerable<Cita> registros)> GetAllAsync( //Sobrecarga de metodos
-        int pageIndex, //Cual pagina necesitamos ver
-        int pageSize, //Cantidad de registros a visualizar por pagina
-        string search // Pasar algun critetio de busqueda
+        int pageIndex,
+        int pageSize,
+        string search
     )
     {
-        var query = _context.Citas as IQueryable<Cita>; //Consulta para obtener todos los registros en este caso Citaes
-        if (!string.IsNullOrEmpty(search)) //nos permite referenciar si esta variable es nula 
+        var query = _context.Citas as IQueryable<Cita>;
+        if (!string.IsNullOrEmpty(search))
         {
-            query = query.Where(p => p.FechaCita.Equals(search));
+            query = query.Where(p => p.FechaCita.ToString().ToLower().Contains(search));
         }
         query = query.OrderBy(p => p.Id);
         var totalRegistros = await query.CountAsync();
