@@ -2,90 +2,97 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Dtos;
+using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers
+namespace API.Controllers;
+
+public class PaisController : BaseController
 {
-    public class PaisController : BaseController
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+
+    public PaisController(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+    }
 
-        public PaisController(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<PaisDto>>> Get()
+    {
+        var paises = await _unitOfWork.Paises.GetAllAsync();
+        return _mapper.Map<List<PaisDto>>(paises);
+    }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<Pais>>> Get()
+    [HttpGet("{Id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PaisDto>> Get(int Id)
+    {
+        var pais = await _unitOfWork.Paises.GetByIdAsync(Id);
+        if (pais == null)
         {
-            var pais = await _unitOfWork.Paises.GetAllAsync();
-            return Ok(pais);
+            return NotFound();
         }
+        return _mapper.Map<PaisDto>(pais);
+    }
 
-        [HttpGet("{Id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Pais>> Get(int Id)
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Pais>> Post(PaisDto paisDto)
+    {
+        var pais = _mapper.Map<Pais>(paisDto);
+        _unitOfWork.Paises.Add(pais);
+        await _unitOfWork.SaveAsync();
+        if (pais == null)
         {
-            var pais = await _unitOfWork.Paises.GetByIdAsync(Id);
-            if (pais == null)
-            {
-                return NotFound();
-            }
-            return pais;
+            return BadRequest();
         }
+        paisDto.Id = pais.Id;
+        return CreatedAtAction(nameof(Post), new { id = paisDto.Id }, paisDto);
+    }
 
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Pais>> Post(Pais pais)
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PaisDto>> Put(int id, [FromBody] PaisDto paisDto)
+    {
+        if (paisDto.Id == 0)
         {
-            _unitOfWork.Paises.Add(pais);
-            await _unitOfWork.SaveAsync();
-            if (pais == null)
-            {
-                return BadRequest();
-            }
-            return CreatedAtAction(nameof(Post), new { id = pais.Id }, pais);
+            paisDto.Id = id;
         }
+        if (paisDto.Id != id)
+        {
+            return NotFound();
+        }
+        var paises = _mapper.Map<Pais>(paisDto);
+        paisDto.Id = paises.Id;
+        _unitOfWork.Paises.Update(paises);
+        await _unitOfWork.SaveAsync();
+        return paisDto;
+    }
 
-        [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Pais>> Put(int id, [FromBody] Pais pais)
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var pais = await _unitOfWork.Paises.GetByIdAsync(id);
+        if (pais == null)
         {
-            if (pais.Id == 0)
-            {
-                pais.Id = id;
-            }
-            if (pais.Id != id)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Paises.Update(pais);
-            await _unitOfWork.SaveAsync();
-            return pais;
+            return NotFound();
         }
-
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var pais = await _unitOfWork.Paises.GetByIdAsync(id);
-            if (pais == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Paises.Remove(pais);
-            await _unitOfWork.SaveAsync();
-            return NoContent();
-        }
+        _unitOfWork.Paises.Remove(pais);
+        await _unitOfWork.SaveAsync();
+        return NoContent();
     }
 }

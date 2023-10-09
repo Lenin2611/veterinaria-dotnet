@@ -6,7 +6,7 @@ using Core.Entities;
 
 namespace Core.Interfaces;
 
-public interface IClienteDireccion : IGenericRepository<ClienteDireccion>
+public interface IClienteRepository : IGenericRepository<Cliente>
 {
 
 }

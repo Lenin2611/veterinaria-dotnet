@@ -11,23 +11,23 @@ namespace Infrastructure.UnitOfWork;
 public class UnitOfWork : IUnitOfWork, IDisposable
 {
     private readonly VeterinariaContext _context;
-    private ICita _Citas;
-    private ICiudad _Ciudades;
-    private ICliente _Clientes;
-    private IClienteDireccion _ClienteDirecciones;
-    private IClienteTelefono _ClienteTelefonos;
-    private IDepartamento _Departamentos;
-    private IMascota _Mascotas;
-    private IPais _Paises;
-    private IRaza _Razas;
-    private IServicio _Servicios;
+    private ICitaRepository _Citas;
+    private ICiudadRepository _Ciudades;
+    private IClienteRepository _Clientes;
+    private IClienteDireccionRepository _ClienteDirecciones;
+    private IClienteTelefonoRepository _ClienteTelefonos;
+    private IDepartamentoRepository _Departamentos;
+    private IMascotaRepository _Mascotas;
+    private IPaisRepository _Paises;
+    private IRazaRepository _Razas;
+    private IServicioRepository _Servicios;
 
     public UnitOfWork(VeterinariaContext context)
     {
         _context = context;
     }
 
-    public ICita Citas
+    public ICitaRepository Citas
     {
         get
         {
@@ -39,7 +39,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         }
     }
 
-    public ICiudad Ciudades
+    public ICiudadRepository Ciudades
     {
         get
         {
@@ -51,7 +51,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         }
     }
 
-    public ICliente Clientes
+    public IClienteRepository Clientes
     {
         get
         {
@@ -63,7 +63,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         }
     }
 
-    public IClienteDireccion ClienteDirecciones
+    public IClienteDireccionRepository ClienteDirecciones
     {
         get
         {
@@ -75,7 +75,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         }
     }
 
-    public IClienteTelefono ClienteTelefonos
+    public IClienteTelefonoRepository ClienteTelefonos
     {
         get
         {
@@ -87,7 +87,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         }
     }
 
-    public IDepartamento Departamentos
+    public IDepartamentoRepository Departamentos
     {
         get
         {
@@ -99,7 +99,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         }
     }
 
-    public IMascota Mascotas
+    public IMascotaRepository Mascotas
     {
         get
         {
@@ -111,7 +111,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         }
     }
 
-    public IPais Paises
+    public IPaisRepository Paises
     {
         get
         {
@@ -123,7 +123,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         }
     }
 
-    public IRaza Razas
+    public IRazaRepository Razas
     {
         get
         {
@@ -135,7 +135,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         }
     }
 
-    public IServicio Servicios
+    public IServicioRepository Servicios
     {
         get
         {

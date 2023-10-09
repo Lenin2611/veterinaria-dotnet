@@ -8,7 +8,7 @@ using Infrastructure.Data;
 
 namespace Infrastructure.Repositories;
 
-public class ClienteDireccionRepository : GenericRepository<ClienteDireccion>, IClienteDireccion
+public class ClienteDireccionRepository : GenericRepository<ClienteDireccion>, IClienteDireccionRepository
 {
     private readonly VeterinariaContext _context;
 

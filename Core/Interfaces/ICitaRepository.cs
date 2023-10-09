@@ -6,7 +6,7 @@ using Core.Entities;
 
 namespace Core.Interfaces;
 
-public interface IServicio : IGenericRepository<Servicio>
+public interface ICitaRepository : IGenericRepository<Cita>
 {
 
 }

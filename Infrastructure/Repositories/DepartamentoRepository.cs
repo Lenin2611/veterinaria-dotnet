@@ -8,7 +8,7 @@ using Infrastructure.Data;
 
 namespace Infrastructure.Repositories;
 
-public class DepartamentoRepository : GenericRepository<Departamento>, IDepartamento
+public class DepartamentoRepository : GenericRepository<Departamento>, IDepartamentoRepository
 {
     private readonly VeterinariaContext _context;
 

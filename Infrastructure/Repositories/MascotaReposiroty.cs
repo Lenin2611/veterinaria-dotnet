@@ -8,7 +8,7 @@ using Infrastructure.Data;
 
 namespace Infrastructure.Repositories;
 
-public class MascotaRepository : GenericRepository<Mascota>, IMascota
+public class MascotaRepository : GenericRepository<Mascota>, IMascotaRepository
 {
     private readonly VeterinariaContext _context;
 

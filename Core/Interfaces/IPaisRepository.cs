@@ -6,7 +6,7 @@ using Core.Entities;
 
 namespace Core.Interfaces;
 
-public interface IPais : IGenericRepository<Pais>
+public interface IPaisRepository : IGenericRepository<Pais>
 {
-
+    
 }

@@ -6,7 +6,7 @@ using Core.Entities;
 
 namespace Core.Interfaces;
 
-public interface ICiudad : IGenericRepository<Ciudad>
+public interface IMascotaRepository : IGenericRepository<Mascota>
 {
 
 }

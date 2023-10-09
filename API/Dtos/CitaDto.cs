@@ -11,7 +11,6 @@ public class CitaDto
     public DateTime FechaCita { get; set; }
     public TimeSpan HoraCita { get; set; }
     public string NombreCliente { get; set; }
-    public string NombreMacota { get; set; }
+    public string NombreMascota { get; set; }
     public string NombreServicio { get; set; }
-
 }
