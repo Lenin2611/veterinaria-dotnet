@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Data.Migrations
 {
     [DbContext(typeof(VeterinariaContext))]
-    [Migration("20231009223734_InitialCreate")]
+    [Migration("20231010151337_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
