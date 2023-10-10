@@ -10,7 +10,7 @@ public class MascotaDto
     public int Id { get; set; }
     public string NombreMascota { get; set; }
     public string EspecieMascota { get; set; }
-    public DateTime FechaNacimientoMascota { get; set; }
+    public DateOnly FechaNacimientoMascota { get; set; }
     public string NombreCliente { get; set; }
     public string NombreRaza { get; set; }
 }
