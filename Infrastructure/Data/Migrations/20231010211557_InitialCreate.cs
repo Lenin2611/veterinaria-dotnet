@@ -133,7 +133,7 @@ namespace Infrastructure.Data.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     EspecieMascota = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    FechaNacimientoMascota = table.Column<DateTime>(type: "date", nullable: false),
+                    FechaNacimientoMascota = table.Column<DateOnly>(type: "date", nullable: false),
                     IdClienteFk = table.Column<int>(type: "int", nullable: false),
                     IdRazaFk = table.Column<int>(type: "int", nullable: false)
                 },
@@ -183,8 +183,8 @@ namespace Infrastructure.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    FechaCita = table.Column<DateTime>(type: "date", nullable: false),
-                    HoraCita = table.Column<TimeSpan>(type: "time", nullable: false),
+                    FechaCita = table.Column<DateOnly>(type: "date", nullable: false),
+                    HoraCita = table.Column<TimeOnly>(type: "time", nullable: false),
                     IdClienteFk = table.Column<int>(type: "int", nullable: false),
                     IdMascotaFk = table.Column<int>(type: "int", nullable: false),
                     IdServicioFk = table.Column<int>(type: "int", nullable: false)

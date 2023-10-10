@@ -50,6 +50,10 @@ public class MascotaController : BaseController
     public async Task<ActionResult<MascotaDto>> Post(MascotaDto mascotaDto)
     {
         var mascota = _mapper.Map<Mascota>(mascotaDto);
+        if (mascotaDto.FechaNacimientoMascota == DateOnly.MinValue)
+        {
+            mascotaDto.FechaNacimientoMascota = DateOnly.FromDateTime(DateTime.Now);
+        }
         _unitOfWork.Mascotas.Add(mascota);
         await _unitOfWork.SaveAsync();
         if (mascota == null)
