@@ -53,6 +53,7 @@ public class MascotaController : BaseController
         if (mascotaDto.FechaNacimientoMascota == DateOnly.MinValue)
         {
             mascotaDto.FechaNacimientoMascota = DateOnly.FromDateTime(DateTime.Now);
+            mascota.FechaNacimientoMascota = DateOnly.FromDateTime(DateTime.Now);
         }
         _unitOfWork.Mascotas.Add(mascota);
         await _unitOfWork.SaveAsync();

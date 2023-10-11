@@ -56,7 +56,7 @@ public class RazaController : BaseController
         {
             return BadRequest();
         }
-        razaDto.Id = razaDto.Id;
+        razaDto.Id = raza.Id;
         return CreatedAtAction(nameof(Post), new { id = razaDto.Id }, razaDto);
     }
 

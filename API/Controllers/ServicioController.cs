@@ -56,7 +56,7 @@ public class ServicioController : BaseController
         {
             return BadRequest();
         }
-        servicioDto.Id = servicioDto.Id;
+        servicioDto.Id = servicio.Id;
         return CreatedAtAction(nameof(Post), new { id = servicioDto.Id }, servicioDto);
     }
 
