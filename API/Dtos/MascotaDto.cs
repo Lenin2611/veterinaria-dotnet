@@ -11,6 +11,6 @@ public class MascotaDto
     public string NombreMascota { get; set; }
     public string EspecieMascota { get; set; }
     public DateOnly FechaNacimientoMascota { get; set; }
-    public string NombreCliente { get; set; }
-    public string NombreRaza { get; set; }
+    public int IdClienteFk { get; set; }
+    public int IdRazaFk { get; set; }
 }

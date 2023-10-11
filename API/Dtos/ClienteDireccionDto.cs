@@ -20,6 +20,6 @@ public class ClienteDireccionDto
     public string CardinalSecundario { get; set; }
     public string Complemento { get; set; }
     public string CodigoPostal { get; set; }
-    public string NombreCiudad { get; set; }
-    public string NombreCliente { get; set; }
+    public string IdCiudadFk { get; set; }
+    public string IdClienteFk { get; set; }
 }
