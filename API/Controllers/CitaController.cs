@@ -50,12 +50,14 @@ public class CitaController : BaseController
     public async Task<ActionResult<CitaDto>> Post(CitaDto citaDto)
     {
         var cita = _mapper.Map<Cita>(citaDto);
-        if (cita.FechaCita == DateOnly.MinValue)
+        if (citaDto.FechaCita == DateOnly.MinValue)
         {
+            citaDto.FechaCita = DateOnly.FromDateTime(DateTime.Now);
             cita.FechaCita = DateOnly.FromDateTime(DateTime.Now);
         }
-        if (cita.HoraCita == TimeOnly.MinValue)
+        if (citaDto.HoraCita == TimeOnly.MinValue)
         {
+            citaDto.HoraCita = TimeOnly.FromDateTime(DateTime.Now);
             cita.HoraCita = TimeOnly.FromDateTime(DateTime.Now);
         }
         _unitOfWork.Citas.Add(cita);
