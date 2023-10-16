@@ -80,6 +80,11 @@ public class MascotaController : BaseController
             return NotFound();
         }
         var mascota = _mapper.Map<Mascota>(mascotaDto);
+        if (mascotaDto.FechaNacimientoMascota == DateOnly.MinValue)
+        {
+            mascotaDto.FechaNacimientoMascota = DateOnly.FromDateTime(DateTime.Now);
+            mascota.FechaNacimientoMascota = DateOnly.FromDateTime(DateTime.Now);
+        }
         mascotaDto.Id = mascota.Id;
         _unitOfWork.Mascotas.Update(mascota);
         await _unitOfWork.SaveAsync();

@@ -85,6 +85,16 @@ public class CitaController : BaseController
             return NotFound();
         }
         var cita = _mapper.Map<Cita>(citaDto);
+        if (citaDto.FechaCita == DateOnly.MinValue)
+        {
+            citaDto.FechaCita = DateOnly.FromDateTime(DateTime.Now);
+            cita.FechaCita = DateOnly.FromDateTime(DateTime.Now);
+        }
+        if (citaDto.HoraCita == TimeOnly.MinValue)
+        {
+            citaDto.HoraCita = TimeOnly.FromDateTime(DateTime.Now);
+            cita.HoraCita = TimeOnly.FromDateTime(DateTime.Now);
+        }
         citaDto.Id = cita.Id;
         _unitOfWork.Citas.Update(cita);
         await _unitOfWork.SaveAsync();
