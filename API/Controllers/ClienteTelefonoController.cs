@@ -30,13 +30,13 @@ public class ClienteTelefonoController : BaseController
         return _mapper.Map<List<ClienteTelefonoDto>>(clienteTelefonos);
     }
 
-    [HttpGet("{Id}")]
+    [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ClienteTelefonoDto>> Get(int Id)
+    public async Task<ActionResult<ClienteTelefonoDto>> Get(int id)
     {
-        var clienteTelefono = await _unitOfWork.ClienteTelefonos.GetByIdAsync(Id);
+        var clienteTelefono = await _unitOfWork.ClienteTelefonos.GetByIdAsync(id);
         if (clienteTelefono == null)
         {
             return NotFound();

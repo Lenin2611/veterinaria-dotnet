@@ -30,13 +30,13 @@ public class ClienteDireccionController : BaseController
         return _mapper.Map<List<ClienteDireccionDto>>(clienteDireccion);
     }
 
-    [HttpGet("{Id}")]
+    [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ClienteDireccionDto>> Get(int Id)
+    public async Task<ActionResult<ClienteDireccionDto>> Get(int id)
     {
-        var clienteDireccion = await _unitOfWork.ClienteDirecciones.GetByIdAsync(Id);
+        var clienteDireccion = await _unitOfWork.ClienteDirecciones.GetByIdAsync(id);
         if (clienteDireccion == null)
         {
             return NotFound();

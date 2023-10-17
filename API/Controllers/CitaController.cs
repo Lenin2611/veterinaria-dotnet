@@ -30,13 +30,13 @@ public class CitaController : BaseController
         return _mapper.Map<List<CitaDto>>(citas);
     }
 
-    [HttpGet("{Id}")]
+    [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<CitaDto>> Get(int Id)
+    public async Task<ActionResult<CitaDto>> Get(int id)
     {
-        var cita = await _unitOfWork.Citas.GetByIdAsync(Id);
+        var cita = await _unitOfWork.Citas.GetByIdAsync(id);
         if (cita == null)
         {
             return NotFound();

@@ -30,13 +30,13 @@ public class MascotaController : BaseController
         return _mapper.Map<List<MascotaDto>>(mascota);
     }
 
-    [HttpGet("{Id}")]
+    [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<MascotaDto>> Get(int Id)
+    public async Task<ActionResult<MascotaDto>> Get(int id)
     {
-        var mascota = await _unitOfWork.Mascotas.GetByIdAsync(Id);
+        var mascota = await _unitOfWork.Mascotas.GetByIdAsync(id);
         if (mascota == null)
         {
             return NotFound();

@@ -30,13 +30,13 @@ public class DepartamentoController : BaseController
         return _mapper.Map<List<DepartamentoDto>>(departamentos);
     }
 
-    [HttpGet("{Id}")]
+    [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<DepartamentoDto>> Get(int Id)
+    public async Task<ActionResult<DepartamentoDto>> Get(int id)
     {
-        var departamento = await _unitOfWork.Departamentos.GetByIdAsync(Id);
+        var departamento = await _unitOfWork.Departamentos.GetByIdAsync(id);
         if (departamento == null)
         {
             return NotFound();

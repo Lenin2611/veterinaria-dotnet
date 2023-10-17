@@ -30,13 +30,13 @@ public class RazaController : BaseController
         return _mapper.Map<List<RazaDto>>(raza);
     }
 
-    [HttpGet("{Id}")]
+    [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<RazaDto>> Get(int Id)
+    public async Task<ActionResult<RazaDto>> Get(int id)
     {
-        var raza = await _unitOfWork.Razas.GetByIdAsync(Id);
+        var raza = await _unitOfWork.Razas.GetByIdAsync(id);
         if (raza == null)
         {
             return NotFound();
