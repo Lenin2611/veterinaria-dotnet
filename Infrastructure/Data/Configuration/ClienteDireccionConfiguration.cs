@@ -38,7 +38,10 @@ public class ClienteDireccionConfiguration : IEntityTypeConfiguration<ClienteDir
 
         builder.Property(c => c.CodigoPostal).IsRequired().HasMaxLength(50);
 
+        builder.Property(x => x.IdCiudadFk).HasColumnType("int");
         builder.HasOne(c => c.Ciudades).WithMany(c => c.ClienteDirecciones).HasForeignKey(c => c.IdCiudadFk);
+
+        builder.Property(x => x.IdClienteFk).HasColumnType("int");
         builder.HasOne(c => c.Clientes).WithOne(c => c.ClienteDirecciones).HasForeignKey<ClienteDireccion>(c => c.IdClienteFk);
     }
 }

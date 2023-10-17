@@ -16,6 +16,7 @@ public class ClienteTelefonoConfiguration : IEntityTypeConfiguration<ClienteTele
 
         builder.Property(x => x.NumeroTelefono).HasColumnType("int");
 
+        builder.Property(x => x.IdClienteFk).HasColumnType("int");
         builder.HasOne(c => c.Clientes).WithMany(c => c.ClienteTelefonos).HasForeignKey(c => c.IdClienteFk);
     }
 }

@@ -18,8 +18,13 @@ public class CitaConfiguration : IEntityTypeConfiguration<Cita>
 
         builder.Property(c => c.HoraCita).HasColumnType("time");
 
+        builder.Property(x => x.IdClienteFk).HasColumnType("int");
         builder.HasOne(c => c.Clientes).WithMany(c => c.Citas).HasForeignKey(c => c.IdClienteFk);
+
+        builder.Property(x => x.IdMascotaFk).HasColumnType("int");
         builder.HasOne(c => c.Mascotas).WithMany(c => c.Citas).HasForeignKey(c => c.IdMascotaFk);
+
+        builder.Property(x => x.IdServicioFk).HasColumnType("int");
         builder.HasOne(c => c.Servicios).WithMany(c => c.Citas).HasForeignKey(c => c.IdServicioFk);
     }
 }
