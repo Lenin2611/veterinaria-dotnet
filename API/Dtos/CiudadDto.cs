@@ -9,6 +9,6 @@ public class CiudadDto
 {
     public int Id { get; set; }
     public string NombreCiudad { get; set; }
-    public string IdDepartamentoFk { get; set; }
-    public string IdPaisFk { get; set; }
+    public int IdDepartamentoFk { get; set; }
+    public int IdPaisFk { get; set; }
 }

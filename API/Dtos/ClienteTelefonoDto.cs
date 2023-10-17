@@ -9,5 +9,5 @@ public class ClienteTelefonoDto
 {
     public int Id { get; set; }
     public int NumeroTelefono { get; set; }
-    public string IdClienteFk { get; set; }
+    public int IdClienteFk { get; set; }
 }
