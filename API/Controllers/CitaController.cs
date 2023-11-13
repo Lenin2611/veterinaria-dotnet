@@ -74,31 +74,31 @@ public class CitaController : BaseController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<CitaDto>> Put(int id, [FromBody] CitaDto citaDto)
+    public async Task<ActionResult<CitaDto>> Put(int id, [FromBody] CitaDto resultDto)
     {
-        if (citaDto.Id == 0)
-        {
-            citaDto.Id = id;
-        }
-        if (citaDto.Id != id)
+        var exists = await _unitOfWork.Citas.GetByIdAsync(id);
+        if (exists == null)
         {
             return NotFound();
         }
-        var cita = _mapper.Map<Cita>(citaDto);
-        if (citaDto.FechaCita == DateOnly.MinValue)
+        if (resultDto.Id == 0)
         {
-            citaDto.FechaCita = DateOnly.FromDateTime(DateTime.Now);
-            cita.FechaCita = DateOnly.FromDateTime(DateTime.Now);
+            resultDto.Id = id;
         }
-        if (citaDto.HoraCita == TimeOnly.MinValue)
+        if (resultDto.Id != id)
         {
-            citaDto.HoraCita = TimeOnly.FromDateTime(DateTime.Now);
-            cita.HoraCita = TimeOnly.FromDateTime(DateTime.Now);
+            return BadRequest();
         }
-        citaDto.Id = cita.Id;
-        _unitOfWork.Citas.Update(cita);
+        // Update the properties of the existing entity with values from resultDto
+        _mapper.Map(resultDto, exists);
+        if (resultDto.FechaCita == DateOnly.MinValue)
+        {
+            exists.FechaCita = DateOnly.FromDateTime(DateTime.Now);
+        }
+        // The context is already tracking result, so no need to attach it
         await _unitOfWork.SaveAsync();
-        return citaDto;
+        // Return the updated entity
+        return _mapper.Map<CitaDto>(exists);
     }
 
     [HttpDelete("{id}")]

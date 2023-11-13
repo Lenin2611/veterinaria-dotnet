@@ -64,21 +64,27 @@ public class ServicioController : BaseController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ServicioDto>> Put(int id, [FromBody] ServicioDto servicioDto)
+    public async Task<ActionResult<ServicioDto>> Put(int id, [FromBody] ServicioDto resultDto)
     {
-        if (servicioDto.Id == 0)
-        {
-            servicioDto.Id = id;
-        }
-        if (servicioDto.Id != id)
+        var exists = await _unitOfWork.Servicios.GetByIdAsync(id);
+        if (exists == null)
         {
             return NotFound();
         }
-        var servicio = _mapper.Map<Servicio>(servicioDto);
-        servicioDto.Id = servicioDto.Id;
-        _unitOfWork.Servicios.Update(servicio);
+        if (resultDto.Id == 0)
+        {
+            resultDto.Id = id;
+        }
+        if (resultDto.Id != id)
+        {
+            return BadRequest();
+        }
+        // Update the properties of the existing entity with values from resultDto
+        _mapper.Map(resultDto, exists);
+        // The context is already tracking result, so no need to attach it
         await _unitOfWork.SaveAsync();
-        return servicioDto;
+        // Return the updated entity
+        return _mapper.Map<ServicioDto>(exists);
     }
 
     [HttpDelete("{id}")]
