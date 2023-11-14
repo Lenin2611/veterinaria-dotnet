@@ -95,6 +95,10 @@ public class CitaController : BaseController
         {
             exists.FechaCita = DateOnly.FromDateTime(DateTime.Now);
         }
+        if (resultDto.HoraCita == TimeOnly.MinValue)
+        {
+            exists.HoraCita = TimeOnly.FromDateTime(DateTime.Now);
+        }
         // The context is already tracking result, so no need to attach it
         await _unitOfWork.SaveAsync();
         // Return the updated entity
